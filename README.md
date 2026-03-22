@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/License-MIT-blue?style=flat)
 ![Internship](https://img.shields.io/badge/Syntecxhub-ML%20Internship%20Week%202-purple?style=flat)
 
-A full-stack machine learning web application for classifying Iris flowers into 3 species using 4 trained ML models — built with Flask, scikit-learn, and vanilla JS.
+A full-stack machine learning web application that classifies Iris flowers into 3 species using 4 trained ML models simultaneously — built with Flask, scikit-learn, Chart.js, and vanilla JavaScript.
 
 **[Features](#features) · [Installation](#installation) · [How It Works](#how-it-works) · [Models](#ml-models-and-accuracy) · [API](#api-endpoints) · [Project Structure](#project-structure)**
 
@@ -15,9 +15,9 @@ A full-stack machine learning web application for classifying Iris flowers into 
 
 ## About
 
-This project is built as part of the **Syntecxhub ML Internship (Week 2)**. The goal is to build an end-to-end machine learning pipeline — from data exploration to a fully interactive web application — using the classic **Iris dataset** first introduced by botanist Ronald Fisher in 1936.
+This project is part of the **Syntecxhub ML Internship (Week 2)**. The goal is to build a complete end-to-end machine learning pipeline — from raw data exploration all the way to a fully interactive, production-style web application — using the classic **Iris dataset** introduced by botanist Ronald Fisher in 1936.
 
-The app allows users to input 4 flower measurements (sepal length, sepal width, petal length, petal width) using interactive sliders and instantly classify the flower as one of 3 Iris species — **Setosa**, **Versicolor**, or **Virginica** — using 4 different ML models running simultaneously.
+Users input 4 flower measurements (sepal length, sepal width, petal length, petal width) using interactive sliders. The app instantly classifies the flower as one of 3 Iris species — **Setosa**, **Versicolor**, or **Virginica** — running 4 different ML models in parallel and showing a side-by-side comparison of all results.
 
 ---
 
@@ -25,14 +25,15 @@ The app allows users to input 4 flower measurements (sepal length, sepal width, 
 
 | Feature | Description |
 |---|---|
-| 🤖 **4 ML Models** | Logistic Regression, Decision Tree, Random Forest, SVM — all run in parallel |
-| 📊 **EDA Dashboard** | 6 interactive Chart.js visualizations — scatter plots, radar, bar, doughnut |
-| 📈 **Probability Bars** | Confidence scores for each species, per model |
-| 🗳️ **Model Voting** | Tracks how many models agree on the prediction |
-| 🕓 **Prediction History** | Stores last 20 predictions in memory |
-| 📤 **CSV Export** | Download all predictions as a timestamped CSV file |
-| 🎨 **Dark Theme UI** | Fully responsive dark-themed interface with smooth animations |
-| ⚡ **REST API** | Clean Flask API with `/predict`, `/history`, `/export`, `/health` endpoints |
+| 🤖 **4 ML Models** | Logistic Regression, Decision Tree, Random Forest, SVM — run in parallel |
+| 🌸 **Real Flower Photos** | Actual species photos displayed on idle screen and after prediction |
+| 📊 **EDA Dashboard** | 6 interactive Chart.js charts — scatter, radar, bar, doughnut |
+| 📈 **Probability Bars** | Per-species confidence scores shown for all 4 models |
+| 🗳️ **Model Voting** | Shows how many models agree — e.g. "4/4 models agree" |
+| 🕓 **Prediction History** | Stores last 20 predictions in session memory |
+| 📤 **CSV Export** | Download all predictions as a timestamped `.csv` file |
+| 🎨 **Dark Theme UI** | Fully responsive dark interface with smooth animations |
+| ⚡ **REST API** | Clean Flask endpoints — `/predict`, `/history`, `/export`, `/health` |
 
 ---
 
@@ -62,7 +63,7 @@ pip install -r requirements.txt
 python model/train_model.py
 ```
 
-This trains all 4 models and saves them as `.pkl` files in `outputs/models/`.
+This trains all 4 models and saves them as `.pkl` files inside `outputs/models/`.
 
 ### Step 4 — Start the Flask server
 
@@ -82,59 +83,63 @@ http://localhost:5000
 
 ```
 User Input (4 measurements via sliders)
-        ↓
-Flask Backend receives POST /predict
-        ↓
-All 4 models run in parallel
-        ↓
-Results compared — vote count calculated
-        ↓
-Random Forest used as final prediction
-        ↓
-JSON response sent back to browser
-        ↓
-JavaScript renders results, charts, history
+         ↓
+Flask Backend  →  POST /predict
+         ↓
+4 ML Models run in parallel
+  ├── Random Forest   (primary)
+  ├── SVM
+  ├── Logistic Regression
+  └── Decision Tree
+         ↓
+Vote count calculated  →  final = Random Forest
+         ↓
+JSON response → JavaScript renders:
+  result card + real flower photo +
+  probability bars + history panel
 ```
 
 ---
 
 ## ML Models and Accuracy
 
-All models are trained on the standard Iris dataset with 150 samples, 80/20 train-test split (stratified).
+All models trained on the Iris dataset — 150 samples, 80/20 stratified train-test split.
 
-| Model | Test Accuracy | CV Accuracy (5-fold) | Notes |
+| Model | Test Accuracy | CV Accuracy (5-fold) | Role |
 |---|---|---|---|
-| 🌲 Random Forest | ~99% | ~96% | Primary model — highest accuracy |
-| ⚡ SVM (RBF kernel) | ~98% | ~98% | Best cross-validation score |
-| 📈 Logistic Regression | ~97% | ~97% | Fast and interpretable |
-| 🌳 Decision Tree | ~95% | ~96% | Most explainable — if/else rules |
+| 🌲 Random Forest | ~99% | ~96% | Primary — final prediction |
+| ⚡ SVM (RBF kernel) | ~98% | ~98% | Best CV score |
+| 📈 Logistic Regression | ~97% | ~97% | Fast, interpretable |
+| 🌳 Decision Tree | ~95% | ~96% | Fully explainable rules |
 
-Final prediction is based on Random Forest output. All 4 model results are shown side-by-side for comparison.
+The final prediction is always taken from Random Forest. All 4 model results are displayed side-by-side for comparison.
 
 ---
 
 ## Dataset
 
-- **Name:** Iris Dataset (Fisher, 1936)
-- **Samples:** 150 (50 per species)
+- **Name:** Iris Dataset (Ronald Fisher, 1936)
+- **Samples:** 150 total — 50 per species
 - **Features:** 4 (Sepal Length, Sepal Width, Petal Length, Petal Width)
-- **Target Classes:** Setosa, Versicolor, Virginica
+- **Classes:** Setosa, Versicolor, Virginica
 - **Source:** `sklearn.datasets.load_iris()`
 
 ### Feature Importance (Random Forest)
 
-| Feature | Importance |
-|---|---|
-| Petal Length | ~47% |
-| Petal Width | ~38% |
-| Sepal Length | ~11% |
-| Sepal Width | ~4% |
+| Feature | Importance | Notes |
+|---|---|---|
+| Petal Length | ~47% | Most discriminative |
+| Petal Width | ~38% | Second most important |
+| Sepal Length | ~11% | Moderate contribution |
+| Sepal Width | ~4% | Least useful |
 
-Petal features are far more discriminative than sepal features.
+> Petal features alone can classify ~90%+ of samples correctly.
 
 ---
 
 ## Project Structure
+
+```
 Syntecxhub_Project_FlowerClassification/
 │
 ├── app.py                        # Flask backend — all routes and API logic
@@ -176,9 +181,9 @@ Syntecxhub_Project_FlowerClassification/
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/` | Main classifier page |
-| `GET` | `/charts` | EDA dashboard page |
-| `POST` | `/predict` | Run all 4 models, returns JSON results |
-| `GET` | `/history` | Get last 20 predictions as JSON |
+| `GET` | `/charts` | EDA dashboard |
+| `POST` | `/predict` | Run all 4 models, return JSON |
+| `GET` | `/history` | Last 20 predictions as JSON |
 | `POST` | `/history/clear` | Clear prediction history |
 | `GET` | `/export` | Download predictions as CSV |
 | `GET` | `/health` | Server health check |
@@ -189,9 +194,9 @@ Syntecxhub_Project_FlowerClassification/
 POST /predict
 {
   "sepal_length": 5.1,
-  "sepal_width": 3.5,
+  "sepal_width":  3.5,
   "petal_length": 1.4,
-  "petal_width": 0.2
+  "petal_width":  0.2
 }
 ```
 
@@ -217,21 +222,22 @@ POST /predict
 
 | Layer | Technology |
 |---|---|
-| Backend | Python, Flask |
-| ML | scikit-learn (LR, DT, RF, SVM), joblib, NumPy |
+| Backend | Python 3.10+, Flask 3.0 |
+| ML | scikit-learn — LR, DT, Random Forest, SVM |
+| Data | NumPy, joblib |
 | Frontend | HTML5, CSS3, Vanilla JavaScript |
 | Charts | Chart.js 4.4 |
-| Fonts | Google Fonts (Sora, DM Sans, JetBrains Mono) |
-| Model Storage | joblib `.pkl` files |
+| Fonts | Google Fonts — Sora, DM Sans, JetBrains Mono |
 
 ---
 
 ## Image Credits
+
 Flower photos sourced from Wikimedia Commons under Creative Commons licenses:
 
-Iris Setosa — Photo by Radomil, CC BY-SA 3.0
-Iris Versicolor — Photo by Dlanglois, CC BY-SA 3.0
-Iris Virginica — Photo by Frank Mayfield, CC BY-SA 2.0
+- **Iris Setosa** — Photo by Radomil, CC BY-SA 3.0
+- **Iris Versicolor** — Photo by Dlanglois, CC BY-SA 3.0
+- **Iris Virginica** — Photo by Frank Mayfield, CC BY-SA 2.0
 
 ---
 
