@@ -135,27 +135,27 @@ Petal features are far more discriminative than sepal features.
 ---
 
 ## Project Structure
-
-```
 Syntecxhub_Project_FlowerClassification/
 │
-├── app.py                      # Flask backend — all routes and prediction logic
+├── app.py                        # Flask backend — all routes and API logic
 │
 ├── model/
-│   └── train_model.py          # Trains 4 models, saves .pkl files and metadata
+│   └── train_model.py            # Train 4 models, save .pkl files + metadata
 │
 ├── templates/
-│   ├── index.html              # Main classifier UI (sliders + results)
-│   └── charts.html             # EDA dashboard (6 Chart.js visualizations)
+│   ├── index.html                # Main classifier page
+│   └── charts.html               # EDA dashboard (6 Chart.js visualizations)
 │
 ├── static/
-│   ├── css/
-│   │   └── style.css           # Full dark theme stylesheet
-│   └── js/
-│       └── app.js              # Slider logic, API calls, result rendering
+│   ├── css/style.css             # Full dark theme stylesheet
+│   ├── js/app.js                 # Slider logic, API calls, result rendering
+│   └── images/
+│       ├── setosa.jpg            # Real Iris Setosa photo
+│       ├── versicolor.jpg        # Real Iris Versicolor photo
+│       └── virginica.jpg         # Real Iris Virginica photo
 │
 ├── outputs/
-│   └── models/                 # Auto-generated after running train_model.py
+│   └── models/                   # Auto-generated after train_model.py
 │       ├── logistic_regression.pkl
 │       ├── decision_tree.pkl
 │       ├── random_forest.pkl
@@ -223,6 +223,15 @@ POST /predict
 | Charts | Chart.js 4.4 |
 | Fonts | Google Fonts (Sora, DM Sans, JetBrains Mono) |
 | Model Storage | joblib `.pkl` files |
+
+---
+
+## Image Credits
+Flower photos sourced from Wikimedia Commons under Creative Commons licenses:
+
+Iris Setosa — Photo by Radomil, CC BY-SA 3.0
+Iris Versicolor — Photo by Dlanglois, CC BY-SA 3.0
+Iris Virginica — Photo by Frank Mayfield, CC BY-SA 2.0
 
 ---
 
