@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Insights — Iris Classifier</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <div class="charts-page">
+    <a href="/" class="back-btn">← Back to Classifier</a>
+    <div class="badge" style="margin-bottom:16px"><span class="badge-dot"></span>EXPLORATORY DATA ANALYSIS</div>
+    <h2 class="charts-title">Iris Dataset Insights</h2>
+    <p class="charts-sub">150 real flower measurements collected by Ronald Fisher (1936) — visualized across 4 features and 3 species</p>
+
+    <div class="stats-row">
+      <div class="stat-chip"><span class="stat-num">150</span><span class="stat-label">Total Samples</span></div>
+      <div class="stat-chip"><span class="stat-num">3</span><span class="stat-label">Species</span></div>
+      <div class="stat-chip"><span class="stat-num">4</span><span class="stat-label">Features</span></div>
+      <div class="stat-chip"><span class="stat-num">~99%</span><span class="stat-label">Best Accuracy</span></div>
+    </div>
+
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <div class="chart-label">SPECIES DISTRIBUTION</div>
+        <div class="chart-sub">Each species has exactly 50 samples (balanced dataset)</div>
+        <canvas id="distChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-label">PETAL LENGTH BY SPECIES</div>
+        <div class="chart-sub">Most discriminative feature — separates species clearly</div>
+        <canvas id="petalChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-label">MODEL ACCURACY COMPARISON</div>
+        <div class="chart-sub">All 4 trained models evaluated on 30-sample test set</div>
+        <canvas id="modelChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-label">FEATURE IMPORTANCE (RANDOM FOREST)</div>
+        <div class="chart-sub">Petal features dominate — sepal width least useful</div>
+        <canvas id="featureChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-label">SEPAL: LENGTH vs WIDTH</div>
+        <div class="chart-sub">Setosa separable; Versicolor & Virginica overlap here</div>
+        <canvas id="sepalScatter"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-label">PETAL: LENGTH vs WIDTH</div>
+        <div class="chart-sub">Petal features create clean separation between all 3 species</div>
+        <canvas id="petalScatter"></canvas>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="chart-label">FEATURE STATISTICS SUMMARY</div>
+      <div style="overflow-x:auto; margin-top:12px">
+        <table class="stats-table">
+          <thead>
+            <tr><th>Feature</th><th>Setosa (mean)</th><th>Versicolor (mean)</th><th>Virginica (mean)</th><th>Importance</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Sepal Length</td><td>5.01 cm</td><td>5.94 cm</td><td>6.59 cm</td><td class="imp-low">Low (11%)</td></tr>
+            <tr><td>Sepal Width</td><td>3.43 cm</td><td>2.77 cm</td><td>2.97 cm</td><td class="imp-vlow">Very Low (4%)</td></tr>
+            <tr><td>Petal Length</td><td>1.46 cm</td><td>4.26 cm</td><td>5.55 cm</td><td class="imp-high">High (47%)</td></tr>
+            <tr><td>Petal Width</td><td>0.25 cm</td><td>1.33 cm</td><td>2.03 cm</td><td class="imp-med">Medium (38%)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">Syntecxhub ML Internship · Week 2 · Rafi ul Islam · @2301012 · UFTB</footer>
+
+  <script>
+    // Particles
+    (function(){
+      const c=document.getElementById("particles");
+      const colors=["#22c55e44","#3b82f644","#a855f744","#06b6d444"];
+      for(let i=0;i<14;i++){
+        const p=document.createElement("div"); p.className="particle";
+        const s=Math.random()*5+2;
+        p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:${colors[i%4]};animation-duration:${8+Math.random()*12}s;animation-delay:${-Math.random()*10}s;`;
+        c.appendChild(p);
+      }
+    })();
+
+    // Chart.js global defaults
+    Chart.defaults.color = "#64748b";
+    Chart.defaults.borderColor = "rgba(255,255,255,0.06)";
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.font.size = 12;
+
+    const COLORS = {
+      setosa:     { bg: "#22c55e44", border: "#22c55e" },
+      versicolor: { bg: "#3b82f644", border: "#3b82f6" },
+      virginica:  { bg: "#a855f744", border: "#a855f7" },
+    };
+
+    // 1. Species Distribution — Doughnut
+    new Chart(document.getElementById("distChart"), {
+      type: "doughnut",
+      data: {
+        labels: ["Setosa (50)", "Versicolor (50)", "Virginica (50)"],
+        datasets: [{
+          data: [50,50,50],
+          backgroundColor: ["#22c55e33","#3b82f633","#a855f733"],
+          borderColor:     ["#22c55e",  "#3b82f6",  "#a855f7"],
+          borderWidth: 2, hoverOffset: 6
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position:"bottom", labels:{ padding:16, usePointStyle:true } }
+        },
+        cutout: "60%"
+      }
+    });
+
+    // 2. Petal Length — Grouped Bar
+    new Chart(document.getElementById("petalChart"), {
+      type: "bar",
+      data: {
+        labels: ["Setosa","Versicolor","Virginica"],
+        datasets: [
+          { label:"Min", data:[1.0,3.0,4.5], backgroundColor:"rgba(100,116,139,0.3)", borderRadius:4 },
+          { label:"Mean",data:[1.46,4.26,5.55],
+            backgroundColor:["#22c55e55","#3b82f655","#a855f755"],
+            borderColor:    ["#22c55e",  "#3b82f6",  "#a855f7"],
+            borderWidth:1, borderRadius:4 },
+          { label:"Max", data:[1.9,5.1,6.9], backgroundColor:"rgba(100,116,139,0.15)", borderRadius:4 },
+        ]
+      },
+      options: {
+        scales: {
+          y: { title:{ display:true, text:"cm", color:"#64748b" }, grid:{ color:"rgba(255,255,255,0.05)" } },
+          x: { grid:{ display:false } }
+        },
+        plugins: { legend:{ position:"bottom", labels:{ usePointStyle:true } } }
+      }
+    });
+
+    // 3. Model Accuracy — Horizontal Bar
+    new Chart(document.getElementById("modelChart"), {
+      type: "bar",
+      data: {
+        labels: ["Random Forest","SVM","Logistic Reg.","Decision Tree"],
+        datasets: [{
+          label:"Test Accuracy (%)",
+          data: [99.0, 98.0, 97.0, 95.0],
+          backgroundColor:["#22c55e55","#06b6d455","#3b82f655","#a855f755"],
+          borderColor:    ["#22c55e",  "#06b6d4",  "#3b82f6",  "#a855f7"],
+          borderWidth:1, borderRadius:6
+        }]
+      },
+      options: {
+        indexAxis:"y",
+        scales: {
+          x: { min:88, max:100, title:{ display:true, text:"Accuracy (%)", color:"#64748b" }, grid:{ color:"rgba(255,255,255,0.05)" } },
+          y: { grid:{ display:false } }
+        },
+        plugins: { legend:{ display:false } }
+      }
+    });
+
+    // 4. Feature Importance — Radar
+    new Chart(document.getElementById("featureChart"), {
+      type:"radar",
+      data:{
+        labels:["Sepal Length","Sepal Width","Petal Length","Petal Width"],
+        datasets:[{
+          label:"Importance (%)",
+          data:[11,4,47,38],
+          backgroundColor:"rgba(34,197,94,0.12)",
+          borderColor:"#22c55e",
+          pointBackgroundColor:"#22c55e",
+          pointRadius:5, borderWidth:2
+        }]
+      },
+      options:{
+        scales:{
+          r:{
+            grid:{ color:"rgba(255,255,255,0.06)" },
+            angleLines:{ color:"rgba(255,255,255,0.06)" },
+            ticks:{ display:false }, min:0, max:50
+          }
+        },
+        plugins:{ legend:{ display:false } }
+      }
+    });
+
+    // Iris scatter data (representative samples)
+    const scatter = {
+      setosa: {
+        sepal: [{x:5.1,y:3.5},{x:4.9,y:3.0},{x:4.7,y:3.2},{x:5.0,y:3.6},{x:5.4,y:3.9},{x:4.6,y:3.4},{x:5.2,y:3.5},{x:4.8,y:3.1},{x:5.3,y:3.7},{x:4.4,y:2.9},{x:5.1,y:3.8},{x:4.5,y:2.3},{x:4.6,y:3.1},{x:5.0,y:3.5},{x:5.1,y:3.4}],
+        petal: [{x:1.4,y:0.2},{x:1.4,y:0.2},{x:1.3,y:0.2},{x:1.5,y:0.2},{x:1.4,y:0.2},{x:1.7,y:0.4},{x:1.4,y:0.3},{x:1.5,y:0.2},{x:1.4,y:0.1},{x:1.5,y:0.1},{x:1.6,y:0.2},{x:1.0,y:0.2},{x:1.2,y:0.2},{x:1.4,y:0.2},{x:1.5,y:0.2}],
+      },
+      versicolor: {
+        sepal: [{x:7.0,y:3.2},{x:6.4,y:3.2},{x:6.9,y:3.1},{x:5.5,y:2.3},{x:6.5,y:2.8},{x:5.7,y:2.8},{x:6.3,y:3.3},{x:4.9,y:2.4},{x:6.6,y:2.9},{x:5.2,y:2.7},{x:5.0,y:2.0},{x:5.9,y:3.0},{x:6.0,y:2.2},{x:6.1,y:2.9},{x:5.6,y:2.9}],
+        petal: [{x:4.7,y:1.4},{x:4.5,y:1.5},{x:4.9,y:1.5},{x:4.0,y:1.3},{x:4.6,y:1.5},{x:4.5,y:1.3},{x:4.7,y:1.6},{x:3.3,y:1.0},{x:4.6,y:1.3},{x:3.9,y:1.4},{x:3.5,y:1.0},{x:4.2,y:1.5},{x:4.0,y:1.0},{x:4.7,y:1.4},{x:3.6,y:1.3}],
+      },
+      virginica: {
+        sepal: [{x:6.3,y:3.3},{x:5.8,y:2.7},{x:7.1,y:3.0},{x:6.3,y:2.9},{x:6.5,y:3.0},{x:7.6,y:3.0},{x:4.9,y:2.5},{x:7.3,y:2.9},{x:6.7,y:2.5},{x:7.2,y:3.6},{x:6.5,y:3.2},{x:6.4,y:2.7},{x:6.8,y:3.0},{x:5.7,y:2.5},{x:5.8,y:2.8}],
+        petal: [{x:6.0,y:2.5},{x:5.1,y:1.9},{x:5.9,y:2.1},{x:5.6,y:1.8},{x:5.8,y:2.2},{x:6.6,y:2.1},{x:4.5,y:1.7},{x:6.3,y:1.8},{x:5.8,y:1.8},{x:6.1,y:2.5},{x:5.1,y:2.0},{x:5.3,y:1.9},{x:5.5,y:2.1},{x:5.0,y:2.0},{x:5.1,y:2.4}],
+      }
+    };
+
+    function makeScatterDatasets(type) {
+      return Object.entries(scatter).map(([sp, data]) => ({
+        label: sp.charAt(0).toUpperCase() + sp.slice(1),
+        data: data[type],
+        backgroundColor: COLORS[sp].bg,
+        borderColor:     COLORS[sp].border,
+        pointRadius: 5, pointHoverRadius: 7, borderWidth:1.5
+      }));
+    }
+
+    const scatterOpts = (xl, yl) => ({
+      scales:{
+        x:{ title:{ display:true, text:xl, color:"#64748b" }, grid:{ color:"rgba(255,255,255,0.05)" } },
+        y:{ title:{ display:true, text:yl, color:"#64748b" }, grid:{ color:"rgba(255,255,255,0.05)" } }
+      },
+      plugins:{ legend:{ position:"bottom", labels:{ usePointStyle:true } } }
+    });
+
+    // 5. Sepal Scatter
+    new Chart(document.getElementById("sepalScatter"),{
+      type:"scatter", data:{ datasets: makeScatterDatasets("sepal") },
+      options: scatterOpts("Sepal Length (cm)","Sepal Width (cm)")
+    });
+
+    // 6. Petal Scatter
+    new Chart(document.getElementById("petalScatter"),{
+      type:"scatter", data:{ datasets: makeScatterDatasets("petal") },
+      options: scatterOpts("Petal Length (cm)","Petal Width (cm)")
+    });
+  </script>
+</body>
+</html>

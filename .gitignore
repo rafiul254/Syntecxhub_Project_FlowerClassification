@@ -1,0 +1,74 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+lib/
+lib64/
+
+# ── Virtual environments ──────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# outputs/models/*.pkl
+
+# ── Jupyter Notebooks ─────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ── IDE / Editor ──────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── OS files ──────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ── Logs ──────────────────────────────────
+*.log
+logs/
+flask_session/
+
+# ── Exports / temp outputs ────────────────
+iris_predictions_*.csv
+
+# ── Test / coverage ───────────────────────
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+
+# ── Secrets (never commit these) ──────────
+*.env
+secrets.py
+config_local.py

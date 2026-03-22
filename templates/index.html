@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iris Flower Classifier — Syntecxhub</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <header class="header">
+    <div class="badge"><span class="badge-dot"></span>SYNTECXHUB ML INTERNSHIP </div>
+    <h1 class="title">Iris Flower Classifier</h1>
+    <p class="subtitle">Enter measurements to classify species using 4 trained ML models</p>
+    <div class="species-pills">
+      <span class="pill setosa">🌿 Setosa</span>
+      <span class="pill versicolor">💙 Versicolor</span>
+      <span class="pill virginica">💜 Virginica</span>
+    </div>
+    <div style="margin-top:14px;">
+      <a href="/charts" class="nav-link">📊 Data Insights</a>
+    </div>
+  </header>
+
+  <main class="main-grid">
+
+    <section class="panel">
+
+      <div class="card">
+        <div class="card-label">QUICK PRESETS</div>
+        <div class="presets-row">
+          <button class="preset-btn" onclick="loadPreset(5.1,3.5,1.4,0.2)">🌿 Setosa</button>
+          <button class="preset-btn" onclick="loadPreset(6.4,2.9,4.3,1.3)">💙 Versicolor</button>
+          <button class="preset-btn" onclick="loadPreset(7.2,3.2,6.0,1.8)">💜 Virginica</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">SEPAL MEASUREMENTS</div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-name">Sepal Length</span><span class="slider-val mono" id="val-sl">5.1 cm</span></div>
+          <div class="slider-track"><div class="slider-fill blue" id="fill-sl"></div><input type="range" class="slider" id="sl" min="4.0" max="8.0" step="0.1" value="5.1" oninput="updateSlider('sl',this.value,4.0,8.0)"/><div class="slider-thumb blue" id="thumb-sl"></div></div>
+          <div class="slider-bounds"><span>4.0</span><span>8.0</span></div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-name">Sepal Width</span><span class="slider-val mono" id="val-sw">3.5 cm</span></div>
+          <div class="slider-track"><div class="slider-fill cyan" id="fill-sw"></div><input type="range" class="slider" id="sw" min="2.0" max="4.5" step="0.1" value="3.5" oninput="updateSlider('sw',this.value,2.0,4.5)"/><div class="slider-thumb cyan" id="thumb-sw"></div></div>
+          <div class="slider-bounds"><span>2.0</span><span>4.5</span></div>
+        </div>
+        <div class="section-label" style="margin-top:20px">PETAL MEASUREMENTS</div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-name">Petal Length</span><span class="slider-val mono" id="val-pl">1.4 cm</span></div>
+          <div class="slider-track"><div class="slider-fill green" id="fill-pl"></div><input type="range" class="slider" id="pl" min="1.0" max="7.0" step="0.1" value="1.4" oninput="updateSlider('pl',this.value,1.0,7.0)"/><div class="slider-thumb green" id="thumb-pl"></div></div>
+          <div class="slider-bounds"><span>1.0</span><span>7.0</span></div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-name">Petal Width</span><span class="slider-val mono" id="val-pw">0.2 cm</span></div>
+          <div class="slider-track"><div class="slider-fill purple" id="fill-pw"></div><input type="range" class="slider" id="pw" min="0.1" max="2.5" step="0.1" value="0.2" oninput="updateSlider('pw',this.value,0.1,2.5)"/><div class="slider-thumb purple" id="thumb-pw"></div></div>
+          <div class="slider-bounds"><span>0.1</span><span>2.5</span></div>
+        </div>
+      </div>
+
+      <div class="measurements-summary">
+        <div class="meas-chip blue">SL<span class="mono" id="chip-sl">5.1</span></div>
+        <div class="meas-chip cyan">SW<span class="mono" id="chip-sw">3.5</span></div>
+        <div class="meas-chip green">PL<span class="mono" id="chip-pl">1.4</span></div>
+        <div class="meas-chip purple">PW<span class="mono" id="chip-pw">0.2</span></div>
+      </div>
+
+      <button class="classify-btn" id="classifyBtn" onclick="classify()">🌸 Classify Flower</button>
+      <div class="error-box" id="errorBox" style="display:none"></div>
+    </section>
+
+    <section class="panel" id="resultPanel">
+
+      <div class="idle-state" id="idleState">
+        <div class="idle-title">Which species is it?</div>
+        <div class="idle-sub">Adjust the sliders and click Classify Flower</div>
+        <div class="species-preview-row">
+
+          <div class="species-preview-card setosa-card">
+            <img src="/static/images/setosa.jpg"
+                 alt="Iris Setosa" class="species-preview-img"/>
+            <div class="species-preview-name setosa-text">Setosa</div>
+            <div class="species-preview-hint">Short petals</div>
+          </div>
+
+          <div class="species-preview-card versicolor-card">
+            <img src="/static/images/versicolor.jpg"
+                 alt="Iris Versicolor" class="species-preview-img"/>
+            <div class="species-preview-name versicolor-text">Versicolor</div>
+            <div class="species-preview-hint">Medium petals</div>
+          </div>
+
+          <div class="species-preview-card virginica-card">
+            <img src="/static/images/virginica.jpg"
+                 alt="Iris Virginica" class="species-preview-img"/>
+            <div class="species-preview-name virginica-text">Virginica</div>
+            <div class="species-preview-hint">Large petals</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="loading-state" id="loadingState" style="display:none">
+        <div class="spinner"></div>
+        <div class="loading-text">Running 4 models...</div>
+        <div class="loading-sub">Logistic Regression · Decision Tree · Random Forest · SVM</div>
+      </div>
+
+      <div class="result-state" id="resultState" style="display:none">
+
+        <div class="result-hero" id="resultHero">
+          <div>
+            <div class="result-label">FINAL PREDICTION</div>
+            <div class="result-species" id="resultSpecies">—</div>
+          </div>
+          <div class="result-confidence-box">
+            <div class="result-conf-label">Confidence</div>
+            <div class="result-conf-val" id="resultConf">—</div>
+          </div>
+        </div>
+
+        <div id="voteBadge" class="agreement-badge agree" style="margin-bottom:12px"></div>
+
+        <div class="models-grid-4" id="modelCards"></div>
+
+        <div class="species-info-card" id="speciesInfoCard">
+          <div class="species-info-header">
+            <span class="species-info-emoji" id="speciesEmoji">🌸</span>
+            <div>
+              <div class="species-info-name" id="speciesInfoName">—</div>
+              <div class="species-info-sub">Identified Species</div>
+            </div>
+          </div>
+
+          <div class="flower-img-wrap" id="flowerImgWrap" style="display:none">
+            <img id="flowerImg" src="" alt="Iris flower" class="flower-img"/>
+            <div class="flower-img-caption" id="flowerImgCaption"></div>
+          </div>
+
+          <div class="species-info-desc" id="speciesDesc">—</div>
+          <div class="species-traits" id="speciesTraits"></div>
+        </div>
+
+        <div class="card" id="historyPanel" style="display:none; margin-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div class="card-label">PREDICTION HISTORY</div>
+            <div style="display:flex;gap:8px">
+              <a href="/export" class="nav-link" style="font-size:11px">⬇ CSV</a>
+              <button onclick="clearHistory()" class="preset-btn" style="font-size:11px;padding:4px 10px">Clear</button>
+            </div>
+          </div>
+          <div id="historyList"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Syntecxhub ML Internship · Rafiul Islam
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
